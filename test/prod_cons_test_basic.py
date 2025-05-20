@@ -57,3 +57,5 @@ class TestProdConsTestBasic(unittest.TestCase):
 
         self.assertEqual(len(prod_cons), 0)
 
+if __name__ == '__main__':
+    unittest.main()

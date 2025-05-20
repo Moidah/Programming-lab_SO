@@ -42,3 +42,6 @@ class TestProdConsTestSync(unittest.TestCase):
         prod_values = prod_thr.join()
         cons_values = cons_thr.join()
         self.assertEqual(prod_values,cons_values)
+
+if __name__ == '__main__':
+    unittest.main()

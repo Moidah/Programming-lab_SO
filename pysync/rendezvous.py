@@ -4,51 +4,42 @@ class RendezvousDEchange:
     def __init__(self):
         self.lock = threading.Lock()
         self.condition = threading.Condition(self.lock)
-        self.put_value = None
-        self.put_ready = False
-        self.get_ready = False
-        self.exchanged_value = None
+        self.first_value = None
+        self.second_value = None
+        self.first_arrived = False
+        self.exchange_complete = False
 
-    def put(self, item):
+    def echanger(self, item):
         with self.condition:
-            # Guardamos el valor del productor
-            while self.put_ready:  # Espera si ya hay otro productor esperando
-                self.condition.wait()
-            self.put_value = item
-            self.put_ready = True
-
-            # Notifica al consumidor que hay valor disponible
-            self.condition.notify_all()
-
-            # Espera a que un consumidor esté listo
-            while not self.get_ready:
-                self.condition.wait()
-
-            # El consumidor ya tomó el valor, obtenemos el suyo
-            result = self.exchanged_value
-
-            # Reiniciamos estado
-            self.put_value = None
-            self.put_ready = False
-            self.get_ready = False
-
-            self.condition.notify_all()
+            if not self.first_arrived:
+                # Este es el primer hilo que llega
+                self.first_value = item
+                self.first_arrived = True
+                
+                # Espera a que el segundo hilo llegue y complete el intercambio
+                while not self.exchange_complete:
+                    self.condition.wait()
+                
+                # Obtiene el valor del segundo hilo
+                result = self.second_value
+                
+                # Reinicia el estado para la próxima operación
+                self.first_arrived = False
+                self.exchange_complete = False
+                self.first_value = None
+                self.second_value = None
+                
+                # Notifica a cualquier hilo esperando que el rendezvous está disponible
+                self.condition.notify_all()
+            else:
+                # Este es el segundo hilo que llega
+                self.second_value = item
+                self.exchange_complete = True
+                
+                # Notifica al primer hilo que el intercambio está listo
+                self.condition.notify_all()
+                
+                # Devuelve el valor del primer hilo
+                result = self.first_value
+                
             return result
-
-    def get(self):
-        with self.condition:
-            # Espera hasta que haya un productor listo
-            while not self.put_ready:
-                self.condition.wait()
-
-            # Ahora, intercambiamos valores
-            self.exchanged_value = self.put_value
-            self.get_ready = True
-
-            self.condition.notify_all()
-
-            # Esperamos a que el productor termine de intercambiar
-            while self.get_ready:
-                self.condition.wait()
-
-            return self.put_value

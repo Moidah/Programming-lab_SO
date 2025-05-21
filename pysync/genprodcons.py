@@ -1,9 +1,8 @@
 import threading
 
 class GenProdCons:
-    def __init__(self, size=10, name=None):
+    def __init__(self, size=10):
         self.size = size
-        self.name = name
         self.buffer = []
         self.lock = threading.Lock()
         self.not_empty = threading.Condition(self.lock)
@@ -14,19 +13,20 @@ class GenProdCons:
             while len(self.buffer) >= self.size:
                 self.not_full.wait()
             self.buffer.append(item)
-            self.not_empty.notify()
+            self.not_empty.notify_all()
 
     def get(self):
         with self.not_empty:
             while len(self.buffer) == 0:
                 self.not_empty.wait()
             item = self.buffer.pop(0)
-            self.not_full.notify()
+            self.not_full.notify_all()
             return item
 
     def __len__(self):
         with self.lock:
             return len(self.buffer)
+
 
 
 

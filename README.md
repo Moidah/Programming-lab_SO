@@ -97,27 +97,3 @@ python3 -m unittest test/test_other_<your_algorithm>_fit.py
 python -m unittest test/test_basic_<your_algorithm>_fit.py
 python -m unittest test/test_other_<your_algorithm>_fit.py
 ```
-
-## Execute cma simulator
-
-First install click
-
-```shell
-python3 -m pip install click
-```
-
-```shell
-python -p pip install click
-```
-
-To run the program
-
-```shell
-python3 cma.py --memmap .\resources\memmap\memmap_1.txt --reqs .\resources\reqs\req_1.txt
-```
-
-```shell
-python cma.py --memmap .\resources\memmap\memmap_1.txt --reqs .\resources\reqs\req_1.txt
-```
-
-The previous execution executes all algorithms you can change to execute different algorithm.
